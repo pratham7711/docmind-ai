@@ -150,7 +150,8 @@ export function ModelSelector({ selected, onChange }: ModelSelectorProps) {
             border: '1px solid var(--border)',
             borderRadius: '12px',
             zIndex: 100,
-            overflow: 'hidden',
+            overflow: 'auto',
+            maxHeight: '55vh',
             boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
             padding: '6px',
           }}

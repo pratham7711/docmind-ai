@@ -90,13 +90,14 @@ export function LandingHero({ onDocumentLoaded }: LandingHeroProps) {
 
   return (
     <div
+      className="landing-hero"
       style={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '40px 24px',
+        padding: 'clamp(24px, 5vw, 40px) clamp(16px, 4vw, 24px)',
         position: 'relative',
         zIndex: 1,
         overflowY: 'auto',

@@ -77,6 +77,7 @@ export function DropZone({ onDocumentLoaded, compact = false }: DropZoneProps) {
         {...getRootProps()}
         style={{
           padding: '12px 20px',
+          minHeight: '44px',
           borderRadius: 'var(--radius)',
           border: `1px dashed ${isDragActive ? 'var(--purple)' : 'var(--border)'}`,
           background: isDragActive ? 'rgba(124,58,237,0.06)' : 'transparent',
@@ -85,7 +86,7 @@ export function DropZone({ onDocumentLoaded, compact = false }: DropZoneProps) {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          fontSize: '13px',
+          fontSize: '14px',
           color: 'var(--text-muted)',
         }}
       >
@@ -106,7 +107,7 @@ export function DropZone({ onDocumentLoaded, compact = false }: DropZoneProps) {
         {...getRootProps()}
         style={{
           position: 'relative',
-          padding: '40px 32px',
+          padding: 'clamp(28px, 5vw, 40px) clamp(20px, 4vw, 32px)',
           borderRadius: 'var(--radius-lg)',
           border: `2px dashed ${
             isDragActive ? 'var(--purple)' : error ? 'var(--danger)' : 'rgba(124,58,237,0.3)'

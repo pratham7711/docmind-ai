@@ -287,3 +287,53 @@ body {
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
+
+/* ─── Mobile / Touch ────────────────────────────────────────── */
+
+/* Prevent iOS auto-zoom on input focus */
+input, textarea, select {
+  font-size: 16px;
+}
+
+/* iOS momentum scrolling for all scroll containers */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* Mobile chat messages area */
+.messages-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Landing hero scroll on mobile */
+.landing-hero {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Sidebar scroll on mobile */
+.sidebar-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  /* Ensure body doesn't overflow horizontally */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Markdown font size bump for readability */
+  .markdown {
+    font-size: 15px;
+  }
+
+  /* Larger tap targets for suggested question buttons */
+  .suggested-btn {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}

@@ -1,5 +1,10 @@
 /* ─── Variables ─────────────────────────────────────────────── */
 :root {
+  /* @pratham/ui accent override */
+  --ui-accent: #818cf8;
+  --ui-accent-dim: rgba(129,140,248,0.25);
+  --ui-accent-glow: rgba(129,140,248,0.12);
+
   --bg: #0A0A0F;
   --surface: #12121A;
   --surface2: #1A1A26;
@@ -336,4 +341,9 @@ input, textarea, select {
     display: flex;
     align-items: center;
   }
+}
+
+/* ── Shared animations (hoisted from components) ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

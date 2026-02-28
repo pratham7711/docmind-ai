@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LoadingSpinner } from '../lib/ui/index.js';
 import { extractTextFromFile } from '../utils/pdfExtractor';
 import type { DocumentInfo } from '../types';
 
@@ -144,14 +145,7 @@ export function DropZone({ onDocumentLoaded, compact = false }: DropZoneProps) {
               exit={{ opacity: 0, y: -8 }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}
             >
-              <div style={{
-                width: 48, height: 48,
-                border: '2px solid var(--border)',
-                borderTopColor: 'var(--purple)',
-                borderRadius: '50%',
-                animation: 'spin 0.8s linear infinite',
-              }} />
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              <LoadingSpinner size="lg" />
               <div>
                 <p style={{ fontSize: '15px', color: 'var(--text)', marginBottom: '4px' }}>
                   Extracting text from <strong>{fileName}</strong>

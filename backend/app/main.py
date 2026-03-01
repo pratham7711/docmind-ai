@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import chat, documents, history, upload, test_embed
+from app.routers import chat, documents, history, upload
 
 # ─── Logging ─────────────────────────────────────────────────────────────────
 

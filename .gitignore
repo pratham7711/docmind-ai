@@ -12,8 +12,11 @@ out/
 # Environment variables - NEVER COMMIT
 .env
 .env.*
+backend/.env
+backend/.env.*
 !.env.example
 !.env.local.example
+!backend/.env.example
 
 # Logs
 logs/

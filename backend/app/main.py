@@ -20,7 +20,7 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# ─── App ──────────────────────────────────────────────────────────────────────
+# ─── App ─────────────────────────────────────────────────────────────────────
 
 app = FastAPI(
     title="DocMind AI",
@@ -30,14 +30,14 @@ app = FastAPI(
     redoc_url="/redoc" if settings.ENVIRONMENT == "development" else None,
 )
 
-# ─── CORS ─────────────────────────────────────────────────────────────────────
+# ─── CORS ────────────────────────────────────────────────────────────────────
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        settings.FRONTEND_URL,
         "http://localhost:3000",
         "http://localhost:3001",
+        settings.FRONTEND_URL,
     ],
     allow_origin_regex=r"https://.*\.vercel\.app",  # allow all Vercel preview URLs
     allow_credentials=True,
@@ -45,7 +45,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ─── Routers ──────────────────────────────────────────────────────────────────
+# ─── Routers ─────────────────────────────────────────────────────────────────
 
 API_PREFIX = "/api/v1"
 
@@ -53,16 +53,13 @@ app.include_router(upload.router, prefix=API_PREFIX, tags=["Upload"])
 app.include_router(chat.router, prefix=API_PREFIX, tags=["Chat"])
 app.include_router(history.router, prefix=API_PREFIX, tags=["History"])
 app.include_router(documents.router, prefix=API_PREFIX, tags=["Documents"])
-app.include_router(test_embed.router, prefix=API_PREFIX, tags=["Test"])
 
-
-# ─── Health ───────────────────────────────────────────────────────────────────
+# ─── Health ──────────────────────────────────────────────────────────────────
 
 @app.get("/health", tags=["Health"])
 async def health_check() -> dict[str, str]:
     """Liveness probe — returns 200 OK when the service is running."""
     return {"status": "ok", "environment": settings.ENVIRONMENT}
-
 
 # ─── Startup log ─────────────────────────────────────────────────────────────
 

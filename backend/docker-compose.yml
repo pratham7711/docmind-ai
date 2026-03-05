@@ -1,0 +1,103 @@
+version: "3.9"
+
+# ─── DocMind AI — Docker Compose ──────────────────────────────────────────────
+#
+# Development (local Postgres):
+#   docker compose --profile dev up --build
+#
+# Production (Supabase DB, no local Postgres):
+#   docker compose --profile prod up --build
+#
+# Run DB migrations manually:
+#   docker compose run --rm migrate
+
+x-api-base: &api-base
+  build:
+    context: .
+    target: runtime
+  env_file: .env
+  restart: unless-stopped
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+
+
+services:
+
+  # ── Alembic migrations (runs once, exits) ─────────────────────────────────
+  migrate:
+    build:
+      context: .
+      target: runtime
+    env_file: .env
+    command: >
+      sh -c "alembic upgrade head && echo '✅ Migrations complete'"
+    restart: "no"
+    profiles: [dev, prod]
+
+
+  # ── API — Development (hot reload + local Postgres) ───────────────────────
+  api-dev:
+    <<: *api-base
+    container_name: docmind-api-dev
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/docmind
+      ENVIRONMENT: development
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - .:/app                        # mount source for hot reload
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+    profiles: [dev]
+
+
+  # ── API — Production (Supabase DB, multi-worker) ──────────────────────────
+  api-prod:
+    <<: *api-base
+    container_name: docmind-api
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    profiles: [prod]
+
+
+  # ── Local Postgres (dev only) ─────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: docmind-db
+    environment:
+      POSTGRES_DB: docmind
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d docmind"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    profiles: [dev]
+
+
+volumes:
+  pgdata:
+    driver: local

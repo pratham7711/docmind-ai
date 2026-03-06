@@ -13,6 +13,21 @@ import { SignJWT } from 'jose'
 import { authOptions } from '@/lib/auth'
 
 export async function GET() {
+  // ── TEST MODE: when backend has DISABLE_AUTH=true, mint a dummy token ──────
+  if (process.env.DISABLE_AUTH === 'true') {
+    const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET!)
+    const token = await new SignJWT({
+      email: 'test@docmind.local',
+      name: 'Test User',
+      picture: null,
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1h')
+      .sign(secret)
+    return NextResponse.json({ token })
+  }
+
   const session = await getServerSession(authOptions)
 
   if (!session?.user?.email) {

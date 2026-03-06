@@ -7,7 +7,7 @@ import { DashboardClient } from './DashboardClient'
 
 async function fetchHistory(backendToken: string): Promise<ChatSession[]> {
   const BASE_URL =
-    process.env.NEXT_PUBLIC_API_URL || 'https://docmind-backend-production.up.railway.app'
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
   try {
     const res = await fetch(`${BASE_URL}/api/v1/history`, {
       headers: { Authorization: `Bearer ${backendToken}` },

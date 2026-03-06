@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { UploadResponse, ChatSession, ChatMessage, Document } from '@/types'
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://docmind-backend-production.up.railway.app'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 /** Cache the backend JWT so we don't hit /api/auth/backend-token on every request */
 let _cachedToken: string | null = null

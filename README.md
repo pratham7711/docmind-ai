@@ -1,95 +1,139 @@
-# DocMind AI
+# 🧠 DocMind AI
 
-> **Talk to your documents.** Drop any PDF or text file and chat with it using AI.
+> **RAG-powered PDF chat app — upload any document and ask questions in plain English.**
 
-Built with React + TypeScript + Vite + OpenAI + Framer Motion + GSAP.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-6366f1?style=for-the-badge&logo=vercel)](https://frontend-mu-five-51.vercel.app)
 
 ---
 
-## Quick Start
+## ✨ Features
 
-### 1. Install dependencies
+- 📄 **PDF & document upload** — drag-and-drop any PDF; text is extracted and chunked automatically
+- 🔍 **Retrieval-Augmented Generation** — relevant chunks are fetched from Pinecone before each answer, keeping responses grounded and accurate
+- ⚡ **Gemini Flash inference** — fast, high-quality answers powered by Google's Gemini Flash model via LangChain
+- 💬 **Streaming responses** — answers stream token-by-token via SSE so you see results instantly
+- 🔐 **Auth with NextAuth** — secure sign-in with session management
+- 🗂️ **Conversation history** — previous chats are persisted and reloadable per document
+- 🌗 **Polished UI** — built with Next.js 14 App Router, Tailwind CSS, and smooth animations
+
+---
+
+## 🖼️ Screenshot
+
+> _Add a screenshot here — e.g. `public/screenshot.png`_
+
+![DocMind AI Screenshot](public/screenshot.png)
+
+---
+
+## 🛠️ Tech Stack
+
+**Frontend**
+
+![Next.js](https://img.shields.io/badge/Next.js%2014-000000?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React%2018-61DAFB?style=flat-square&logo=react&logoColor=000)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=fff)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=fff)
+
+**Backend**
+
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=fff)
+![Python](https://img.shields.io/badge/Python%203.11-3776AB?style=flat-square&logo=python&logoColor=fff)
+![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat-square)
+![Pinecone](https://img.shields.io/badge/Pinecone-000000?style=flat-square)
+![Gemini](https://img.shields.io/badge/Gemini%20Flash-4285F4?style=flat-square&logo=google)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=fff)
+
+---
+
+## 🚀 Local Setup
+
+### Prerequisites
+
+- Node.js 18+, Python 3.11+
+- A [Pinecone](https://www.pinecone.io/) account and index
+- A [Google AI Studio](https://aistudio.google.com/) API key (Gemini Flash)
+- PostgreSQL database (local or Supabase)
+
+### 1. Clone the repo
 
 ```bash
-npm install
+git clone https://github.com/pratham7711/docmind-ai.git
+cd docmind-ai
 ```
 
-### 2. Set up your OpenAI API key
+### 2. Set up the FastAPI backend
 
 ```bash
-cp src/.env.example .env
+cd backend
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env            # fill in your keys
+uvicorn app.main:app --reload --port 8000
 ```
 
-Open `.env` and replace the placeholder:
+**Backend `.env` keys:**
 
 ```env
-VITE_OPENAI_API_KEY=sk-...your-key-here...
+PINECONE_API_KEY=your_key
+PINECONE_INDEX_NAME=your_index
+GOOGLE_API_KEY=your_gemini_key
+DATABASE_URL=postgresql+asyncpg://user:pass@host/db
+SECRET_KEY=your_jwt_secret
 ```
 
-> **No API key?** The app works in demo mode — it streams a mock response so you can see the UI in action.
-
-### 3. Run the dev server
+### 3. Set up the Next.js frontend
 
 ```bash
+cd frontend
+npm install
+cp .env.local.example .env.local   # fill in your keys
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173)
+**Frontend `.env.local` keys:**
+
+```env
+NEXTAUTH_SECRET=your_secret
+NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## Features
-
-| Feature | Details |
-|---|---|
-| **PDF support** | Uses PDF.js (loaded from CDN) to extract text from any PDF |
-| **TXT / MD support** | Native FileReader API |
-| **AI Chat** | GPT-4o-mini via OpenAI SDK with streaming |
-| **Demo mode** | Works without an API key — shows animated mock responses |
-| **Markdown rendering** | AI responses render full markdown including code blocks |
-| **Copy responses** | One-click copy on any AI message |
-| **Suggested questions** | Quick-start prompts in the sidebar |
-
----
-
-## Tech Stack
-
-- **React 19** + **TypeScript** + **Vite**
-- **OpenAI SDK** — streaming chat completions
-- **Framer Motion** — page transitions + message animations
-- **GSAP** — hero entrance animations
-- **react-dropzone** — drag & drop file handling
-- **react-markdown** — markdown rendering in chat
-- **PDF.js** (CDN) — PDF text extraction
-
----
-
-## Project Structure
+## 📁 Project Structure
 
 ```
-src/
-├── components/
-│   ├── LandingHero.tsx    # Full-screen hero with drop zone
-│   ├── DropZone.tsx       # Drag & drop file uploader
-│   ├── ChatInterface.tsx  # Split sidebar + chat layout
-│   └── MessageBubble.tsx  # Individual message component
-├── utils/
-│   ├── pdfExtractor.ts    # PDF.js + FileReader text extraction
-│   └── aiChat.ts          # OpenAI streaming + mock fallback
-├── types/
-│   └── index.ts           # Message + DocumentInfo types
-├── App.tsx
-└── index.css              # Design system + animations
+docmind-ai/
+├── frontend/          # Next.js 14 App Router
+│   └── src/app/       # Pages, components, API routes
+├── backend/           # FastAPI application
+│   ├── app/
+│   │   ├── routers/   # /upload, /chat, /auth endpoints
+│   │   └── services/  # RAG pipeline, Pinecone, Gemini
+│   └── alembic/       # DB migrations
+└── docker-compose.yml # Full-stack local dev
 ```
 
 ---
 
-## Build for production
+## 🐳 Docker (optional)
 
 ```bash
-npm run build
+docker-compose up --build
 ```
 
-Output goes to `dist/`. Deploy to Vercel, Netlify, or any static host.
+Spins up FastAPI + PostgreSQL together. Frontend still runs separately via `npm run dev`.
 
-> **Note:** Set `VITE_OPENAI_API_KEY` as an environment variable in your deployment settings. Never commit your `.env` file.
+---
+
+## 📄 License
+
+MIT — free to use, modify, and distribute.
+
+---
+
+<p align="center">Built by <a href="https://github.com/pratham7711">Pratham</a> · Powered by Gemini Flash + Pinecone</p>

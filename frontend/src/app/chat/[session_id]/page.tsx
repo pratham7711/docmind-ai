@@ -379,7 +379,7 @@ export default function ChatPage() {
               <div className="w-6 h-6 rounded-full border-2 border-indigo-500/30 border-t-indigo-400 animate-spin" />
             </div>
           ) : messages.length === 0 && !isStreaming ? (
-            <div className="flex flex-col items-center justify-center h-full gap-4 text-center max-w-sm mx-auto">
+            <div className="flex flex-col items-center justify-center h-full gap-6 text-center max-w-lg mx-auto">
               <div className="text-5xl">💬</div>
               <div>
                 <h2 className="font-semibold text-lg mb-2">
@@ -387,10 +387,37 @@ export default function ChatPage() {
                 </h2>
                 <p className="text-white/40 text-sm leading-relaxed">
                   {docId
-                    ? 'Type your question below. I\'ll search the document and give you a cited answer.'
+                    ? "Type your question below or pick a suggestion to get started."
                     : 'Go back and upload a PDF to start chatting.'}
                 </p>
               </div>
+
+              {docId && (
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  {[
+                    { icon: '📋', label: 'Summarize this document' },
+                    { icon: '🔑', label: 'What are the key points?' },
+                    { icon: '❓', label: 'What questions does this answer?' },
+                    { icon: '📌', label: 'List the main conclusions' },
+                    { icon: '🧩', label: 'Explain the core concepts' },
+                    { icon: '⚠️', label: 'Any risks or limitations mentioned?' },
+                  ].map(({ icon, label }) => (
+                    <button
+                      key={label}
+                      onClick={() => {
+                        setInputValue(label)
+                        textareaRef.current?.focus()
+                      }}
+                      className="flex items-center gap-2 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.04]
+                        hover:bg-white/[0.08] hover:border-indigo-500/30 transition-all text-left text-sm text-white/70 hover:text-white"
+                    >
+                      <span className="text-base shrink-0">{icon}</span>
+                      <span className="leading-snug">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {!docId && (
                 <a
                   href="/upload"

@@ -12,7 +12,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import ReactMarkdown from 'react-markdown'
-import { getChatMessages, getChatHistory, streamChat } from '@/lib/api'
+import { getChatMessages, getChatHistory, streamChat, deleteChat } from '@/lib/api'
 import { useToast } from '@/components/Toast'
 import type { ChatMessage, ChatSession, Source } from '@/types'
 
@@ -131,6 +131,8 @@ export default function ChatPage() {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
   const [loadingSessions, setLoadingSessions] = useState(true)
   const [loadingMessages, setLoadingMessages] = useState(!isNew)
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -258,6 +260,23 @@ export default function ChatPage() {
     }
   }, [inputValue, isStreaming, docId, currentSessionId, toast])
 
+  async function handleDeleteSession(sid: string) {
+    setDeletingSessionId(sid)
+    try {
+      await deleteChat(sid)
+      setChatSessions((prev) => prev.filter((s) => s.id !== sid))
+      // If we deleted the active session, go to new chat
+      if (sid === (currentSessionId ?? sessionId)) {
+        router.replace('/chat/new')
+      }
+    } catch {
+      toast('Failed to delete chat.', 'error')
+    } finally {
+      setDeletingSessionId(null)
+      setConfirmDeleteId(null)
+    }
+  }
+
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -314,23 +333,58 @@ export default function ChatPage() {
           ) : (
             chatSessions.map((s) => {
               const isActive = s.id === (currentSessionId ?? sessionId)
+              const isConfirming = confirmDeleteId === s.id
+              const isDeleting = deletingSessionId === s.id
               return (
-                <a
+                <div
                   key={s.id}
-                  href={`/chat/${s.id}`}
-                  className={`flex flex-col gap-0.5 px-3 py-2 rounded-lg transition-colors text-left
+                  className={`group relative flex flex-col gap-0.5 px-3 py-2 rounded-lg transition-colors
                     ${isActive
                       ? 'bg-indigo-500/15 border border-indigo-500/20'
                       : 'hover:bg-white/5'
                     }`}
                 >
-                  <span
-                    className={`text-xs truncate font-medium ${isActive ? 'text-indigo-200' : 'text-white/70'}`}
+                  <a
+                    href={`/chat/${s.id}`}
+                    className="flex flex-col gap-0.5 pr-6"
                   >
-                    {s.title || 'Untitled Chat'}
-                  </span>
-                  <span className="text-[10px] text-white/25">{formatDate(s.created_at)}</span>
-                </a>
+                    <span className={`text-xs truncate font-medium ${isActive ? 'text-indigo-200' : 'text-white/70'}`}>
+                      {s.title || 'Untitled Chat'}
+                    </span>
+                    <span className="text-[10px] text-white/25">{formatDate(s.created_at)}</span>
+                  </a>
+
+                  {/* Delete controls */}
+                  {isConfirming ? (
+                    <div className="flex items-center gap-1 mt-1.5">
+                      <span className="text-[10px] text-white/40 flex-1">Delete?</span>
+                      <button
+                        onClick={() => handleDeleteSession(s.id)}
+                        disabled={isDeleting}
+                        className="text-[10px] px-2 py-0.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+                      >
+                        {isDeleting ? '…' : 'Yes'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white/40 hover:bg-white/15 transition-colors"
+                      >
+                        No
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.preventDefault(); setConfirmDeleteId(s.id) }}
+                      className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity
+                        w-6 h-6 rounded flex items-center justify-center text-white/30 hover:text-red-400 hover:bg-red-500/10"
+                      title="Delete chat"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               )
             })
           )}

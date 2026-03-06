@@ -109,6 +109,11 @@ export async function deleteDocument(docId: string): Promise<void> {
   await api.delete(`/api/v1/documents/${docId}`)
 }
 
+// Delete chat session (messages cascade via DB FK)
+export async function deleteChat(sessionId: string): Promise<void> {
+  await api.delete(`/api/v1/history/${sessionId}`)
+}
+
 // Streaming chat — returns an AbortController so caller can cancel
 export async function streamChat(
   sessionId: string,

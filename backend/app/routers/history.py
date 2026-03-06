@@ -1,6 +1,7 @@
 """
-GET /history        — List all chat sessions for the current user.
-GET /history/{id}   — Full message list for a specific session.
+GET    /history        — List all chat sessions for the current user.
+GET    /history/{id}   — Full message list for a specific session.
+DELETE /history/{id}   — Delete a chat session and all its messages.
 """
 import logging
 import uuid
@@ -143,4 +144,42 @@ async def get_session_detail(
         title=session.title,
         created_at=session.created_at,
         messages=messages,
+    )
+
+
+@router.delete("/history/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_session(
+    session_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """
+    Delete a chat session and all its messages.
+
+    Steps:
+    1. Verify session ownership.
+    2. Delete all messages (cascade via FK or explicit delete).
+    3. Delete the session record.
+    """
+    result = await db.execute(
+        select(ChatSession).where(
+            ChatSession.id == session_id,
+            ChatSession.user_id == current_user.id,
+        )
+    )
+    session = result.scalar_one_or_none()
+
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Chat session not found or access denied.",
+        )
+
+    await db.delete(session)
+    await db.commit()
+
+    logger.info(
+        "Deleted chat session id=%s for user_id=%s",
+        session_id,
+        current_user.id,
     )
